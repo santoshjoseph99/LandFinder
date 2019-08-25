@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import * as Location from 'expo-location';
 import * as Permissions from 'expo-permissions';
 import LatLon from 'geodesy/latlon-ellipsoidal-vincenty';
+import { ONWATER, MAPKEY } from 'react-native-dotenv'
 
 export default class LocationScreen extends Component {
   state = {
@@ -68,12 +69,12 @@ export default class LocationScreen extends Component {
     const magLocation = current.destinationPoint(this.distance * 1000, heading.magHeading);
     console.log('TRUE:', trueLocation);
     console.log('MAG:', magLocation)
-    const landWater = await (await fetch(`https://api.onwater.io/api/v1/results/${trueLocation._lat},${trueLocation._lon}?access_token=`)).json();
+    const landWater = await (await fetch(`https://api.onwater.io/api/v1/results/${trueLocation._lat},${trueLocation._lon}?access_token=${ONWATER}`)).json();
     console.log('WATER:', landWater.water);
 
     const addresses = [];
     if (!landWater.water) {
-      const googleResult = await (await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${landWater.lat},${landWater.lon}&key=`)).json();
+      const googleResult = await (await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${landWater.lat},${landWater.lon}&key=${MAPKEY}`)).json();
       if (googleResult.status === 'OK') {
         console.log('RESULTS:', googleResult.results.length);
         for (let i = 0; i < googleResult.results.length; i++) {
