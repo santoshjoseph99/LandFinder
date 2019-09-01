@@ -68,6 +68,15 @@ SettingsStack.navigationOptions = {
 
 SettingsStack.path = '';
 
+LocationScreen.navigationOptions = {
+  tabBarLabel: 'Location',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon focused={focused} name={Platform.OS === 'ios' ? 'ios-pin' : 'md-pin'} />
+  ),
+};
+
+LocationScreen.path = '';
+
 const tabNavigator = createBottomTabNavigator({
   HomeStack,
   LinksStack,

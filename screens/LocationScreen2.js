@@ -17,7 +17,6 @@ export default class LocationScreen extends Component {
     addresses: null,
     magLocation: null,
     text: '1',
-    locationStr: '',
   };
   distance = 1;
 
@@ -82,16 +81,10 @@ export default class LocationScreen extends Component {
           console.log('address:', googleResult.results[i].formatted_address);
           addresses.push(googleResult.results[i].formatted_address);
         }
-        this.setState({locationStr: googleResult.results[0]})
         console.log('GOOGLE:', googleResult.plus_code.compound_code);
       } else {
         console.log('google result:', googleResult.status);
-        this.setState({errorMessage: `Could not get result from Google: ${googleResult.status}`});
-        return;
       }
-    } else {
-      this.setState({errorMessage: 'This location is in water :('}) ;
-      return;
     }
     this.setState({ location, trueLocation, magLocation, heading, loading: false, landWater, addresses });
   };
@@ -108,52 +101,53 @@ export default class LocationScreen extends Component {
   };
 
   render() {
-    let text = '';
+    let text = 'Waiting...';
+    let text2 = '';
+    let text3 = '';
     if (!this.state.loading) {
       if (this.state.errorMessage) {
         text = this.state.errorMessage;
-      } else if (this.state.locationStr) {
-        text = this.state.locationStr;
+      } else if (this.state.location) {
+        text = JSON.stringify(this.state.trueLocation);
+        text2 = JSON.stringify(this.state.heading);
+        text3 = JSON.stringify(this.state.magLocation);
       }
-    } else {
-      text = 'Checking...';
     }
 
     return (
       <ScrollView contentContainerStyle={styles.container}>
-       <View
-          style={styles.inputsView}>
-         <TextInput
+        <Text style={styles.paragraph}>TRUE: {text}</Text>
+        <Text style={styles.paragraph}>MAG: {text3}</Text>
+        <Text style={styles.paragraph}>HEADING: {text2}</Text>
+        {this.state.landWater && <Text style={styles.paragraph}>{this.state.landWater.water ? 'WATER' : 'LAND'}</Text>}
+        <Text style={styles.paragraph}>{JSON.stringify(this.state.addresses)}</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            height: 100,
+            padding: 20,
+          }}>
+          <TouchableOpacity onPress={this.onRefresh} style={styles.button}><Text title="Refresh">Refresh</Text></TouchableOpacity>
+          <TouchableOpacity onPress={this.onMileage.bind(this, 10)} style={styles.button}><Button title="10" /></TouchableOpacity>
+          <TouchableOpacity onPress={this.onMileage.bind(this, 100)} style={styles.button}><Button title="100" /></TouchableOpacity>
+          <TouchableOpacity onPress={this.onMileage.bind(this, 1000)} style={styles.button}><Button title="1000" /></TouchableOpacity>
+        </View>
+        <TextInput
           style={{ height: 40 }}
           keyboardType="number-pad"
-          placeholder="Distance in KM"
+          placeholder="Distance"
           onChangeText={(text) => {
             this.setState({ text });
             this.distance = parseInt(text);
           }}
           value={this.state.text}
-         />
-          <TouchableOpacity onPress={this.onRefresh} style={styles.button}><Button title="Check"/></TouchableOpacity>
-        </View>
-        <View style={styles.inputsView}>
-          <TouchableOpacity onPress={this.onMileage.bind(this, 10)} style={styles.button}><Button title="10 km" /></TouchableOpacity>
-          <TouchableOpacity onPress={this.onMileage.bind(this, 100)} style={styles.button}><Button title="100 km" /></TouchableOpacity>
-          <TouchableOpacity onPress={this.onMileage.bind(this, 1000)} style={styles.button}><Button title="1000 km" /></TouchableOpacity>
-        </View>
-        <View>
-          <Text style={styles.paragraph}>{text}</Text>
-        </View>
+        />
       </ScrollView>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  inputsView: {
-            flexDirection: 'row',
-            height: 100,
-            padding: 20,
-  },
   container: {
     // flex: 1,
     alignItems: 'center',
